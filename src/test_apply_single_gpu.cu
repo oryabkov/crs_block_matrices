@@ -47,19 +47,22 @@ int read_matrix_size(const std::string &fn)
 
 int main(int argc, char **args)
 {
-    if (argc < 6) {
-        std::cout << "USAGE: " << std::string(args[0]) << " <matrix_fn> <vector_fn> <result_fn> <apply_type> <color_perm_fn>" << std::endl;
+    if (argc < 7) {
+        std::cout << "USAGE: " << std::string(args[0]) << " <matrix_fn> <vector_fn> <result_fn> <apply_type> <color_perm_fn> <dev_num>" << std::endl;
         std::cout << "    <matrix_fn> - name of matrix file in mm format with blocks extension" << std::endl;
         std::cout << "    <vector_fn> - name of vector to which operator should be applied file" << std::endl;
         std::cout << "    <result_fn> - name of file with result vector" << std::endl;
+        std::cout << "    <apply_type> - type of applied operator: 1 - normal matrix apply, 2 - inverted lower, 3 - inverted upper" << std::endl;
         std::cout << "    <color_perm_fn> - file name where colored permutation will be written, use \"none\" to ommit" << std::endl;
+        std::cout << "    <dev_num> - cuda device number" << std::endl;
         return 0;
     }
     std::string             mat_fn(args[1]), vec_fn(args[2]), res_fn(args[3]);
     int                     apply_type = atoi(args[4]);
     std::string             color_perm_fn(args[5]);
+    int                     dev_num = atoi(args[6]);
 
-    utils::init_cuda(0);
+    utils::init_cuda(dev_num);
     cusparseHandle_t        handle = 0;
     CUSPARSE_SAFE_CALL( cusparseCreate(&handle) );
 
