@@ -26,9 +26,11 @@
 #include <utils/cusparse_safe_call.h>
 #include <utils/device_tag.h>
 #include <numerical_algos/vectors/block_vector.h>
+#ifdef SCFD_BRS_MATRIX_ENABLE_MPI
 #include <communication/mpi_distributor.h>
 //TODO move this include somewhere
 #include <communication/mpi_distributor_copy_kernels_impl.h>
+#endif
 #include <for_each/for_each_1d.h>
 #include <tensor_field/t_tensor_field_tml.h>
 #include "brs_matrix_structure.h"

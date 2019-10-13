@@ -17,7 +17,7 @@
 #ifndef __SCFD_BLOCK_VECTOR_H__
 #define __SCFD_BLOCK_VECTOR_H__
 
-#define SCFD_BLOCK_VECTOR_ENABLE_MPI
+//#define SCFD_BLOCK_VECTOR_ENABLE_MPI
 
 #include <cassert>
 #include <string>

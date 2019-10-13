@@ -17,7 +17,7 @@
 #ifndef __SCFD_BRS_MATRIX_STRUCTURE_H__
 #define __SCFD_BRS_MATRIX_STRUCTURE_H__
 
-#define SCFD_BRS_MATRIX_ENABLE_MPI
+//#define SCFD_BRS_MATRIX_ENABLE_MPI
 
 #include <cassert>
 #include <string>
@@ -56,7 +56,9 @@ class brs_matrix_structure
 
     static const t_for_each_type                                    for_each_type = FET_CUDA;
     typedef Map                                                     map_t;
+#ifdef SCFD_BRS_MATRIX_ENABLE_MPI
     typedef communication::mpi_distributor<storage, for_each_type>  distributor_t;
+#endif
     //typedef brs_matrix<T,storage,Map>                               matrix_t;
 
     int     block_row_size_, block_col_size_;
@@ -80,8 +82,10 @@ class brs_matrix_structure
     std::vector<int>                    crs_row_ptr, csr_col_ind;
 
     const map_t      *map_;
+#ifdef SCFD_BRS_MATRIX_ENABLE_MPI
     distributor_t    distributor_;
     distributor_t    *colors_distributors_;
+#endif
 
     //TODO don't use crs_row_ptr/csr_col_ind and glob_XX->loc_XX
     //we need another cpu buffer instead of crs_row_ptr/csr_col_ind
@@ -98,7 +102,11 @@ class brs_matrix_structure
     brs_matrix_structure(const brs_matrix_structure &mat) { }
     brs_matrix_structure &operator=(const brs_matrix_structure &mat) { return *this; }
 public:
+#ifdef SCFD_BRS_MATRIX_ENABLE_MPI
     brs_matrix_structure() : colors_distributors_(NULL) {}    
+#else
+    brs_matrix_structure() {}
+#endif
 
     int     block_row_size()const { return block_row_size_; }
     int     block_col_size()const { return block_col_size_; }
@@ -392,8 +400,10 @@ public:
             }
         }
 
+#ifdef SCFD_BRS_MATRIX_ENABLE_MPI
         colors_distributors_ = new distributor_t[border_colors_n_];
         if (colors_distributors_ == NULL) throw std::runtime_error("brs_matrix_structure::init: failed to alloc colors_distributors_ array");
+#endif
 
         for (int i = 0;i < loc_nonzeros_n_;++i) {
             int     glob_i = csr_col_ind[i];
@@ -401,18 +411,24 @@ public:
             if (map_->check_glob_owned(glob_i)) continue;
 
             //init main distributor
+#ifdef SCFD_BRS_MATRIX_ENABLE_MPI
             distributor_.add_stencil_element_pass_map(*map_, glob_i);
+#endif
             //init color elements distributors 
             for (int color = 0;color < border_colors_n_;++color) {
                 if (colors_view(map_->glob2loc(glob_i)) != color+1) continue;
 
+#ifdef SCFD_BRS_MATRIX_ENABLE_MPI
                 colors_distributors_[color].add_stencil_element_pass_map(*map_, glob_i);
+#endif
             }
         }
 
+#ifdef SCFD_BRS_MATRIX_ENABLE_MPI
         distributor_.init(*map_);
         for (int color = 0;color < border_colors_n_;++color)
             colors_distributors_[color].init(*map_);
+#endif
 
         colors_view.release(true); col_ind_no_borders_view.release(true);
 
@@ -443,7 +459,9 @@ public:
 
         col_ind_no_borders_ = col_ind_;
 
+#ifdef SCFD_BRS_MATRIX_ENABLE_MPI
         distributor_.init(*map_);
+#endif
 
         is_diagonal_ = true;
     }
@@ -562,7 +580,9 @@ public:
         if (col_ind_.d != NULL) col_ind_.free();
         if ((col_ind_no_borders_.d != NULL)&&(col_ind_no_borders_.own)) col_ind_no_borders_.free();
         if (colors_.d != NULL) colors_.free();
+#ifdef SCFD_BRS_MATRIX_ENABLE_MPI
         if (colors_distributors_ != NULL) delete []colors_distributors_;
+#endif
     }
 
     ~brs_matrix_structure()

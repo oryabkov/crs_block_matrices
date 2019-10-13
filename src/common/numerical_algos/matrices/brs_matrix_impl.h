@@ -26,9 +26,11 @@
 #include <utils/cusparse_safe_call.h>
 #include <utils/device_tag.h>
 #include <numerical_algos/vectors/block_vector.h>
+#ifdef SCFD_BRS_MATRIX_ENABLE_MPI
 #include <communication/mpi_distributor.h>
 //TODO move this include somewhere
 #include <communication/mpi_distributor_copy_kernels_impl.h>
+#endif
 #include <for_each/for_each_1d.h>
 #include <for_each/for_each_1d_cuda_impl.cuh>
 #include <for_each/for_each_func_macro.h>
@@ -206,8 +208,10 @@ cusparseStatus_t cusparseXbsrmv<double>(cusparseHandle_t handle_, cusparseDirect
 template<class T,t_tensor_field_storage storage,class Map>
 void brs_matrix<T,storage,Map>::apply(const block_vector_type &x, block_vector_type &y)const
 {
+#ifdef SCFD_BRS_MATRIX_ENABLE_MPI
     mat_str_->distributor_.set_data(x.ptr(), x.size(), x.block_size(), false);
     mat_str_->distributor_.sync();
+#endif
 
     cusparseDirection_t     dir = BRS_MATRIX_CUSPARSE_DIR_TYPE; 
     cusparseOperation_t     trans = CUSPARSE_OPERATION_NON_TRANSPOSE;
@@ -399,8 +403,11 @@ void brs_matrix<T,storage,Map>::apply_inverted_upper(const block_vector_type &x,
                   0, mat_str_->loc_rows_n_ );
 
         if (color >= 2) {
+//TODO maybe cover all this block?
+#ifdef SCFD_BRS_MATRIX_ENABLE_MPI
             mat_str_->colors_distributors_[color-1].set_data(tmp1_.ptr(), tmp1_.size(), tmp1_.block_size(), false);
             mat_str_->colors_distributors_[color-1].sync();
+#endif
         }
     }
 
@@ -473,8 +480,10 @@ void brs_matrix<T,storage,Map>::apply_inverted_lower(const block_vector_type &x,
                   0, mat_str_->loc_rows_n_ );
 
         if (color+1 < mat_str_->colors_n_) {
+#ifdef SCFD_BRS_MATRIX_ENABLE_MPI
             mat_str_->colors_distributors_[color-1].set_data(y.ptr(), y.size(), y.block_size(), false);
             mat_str_->colors_distributors_[color-1].sync();
+#endif
         }
     }
 }
