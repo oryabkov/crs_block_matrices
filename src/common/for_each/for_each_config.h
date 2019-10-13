@@ -1,0 +1,7 @@
+#ifndef __FOR_EACH_CONFIG_H__
+#define __FOR_EACH_CONFIG_H__
+
+#define SCFD_FOR_EACH_VERSION_MAJOR  0
+#define SCFD_FOR_EACH_VERSION_MINOR 11
+
+#endif
