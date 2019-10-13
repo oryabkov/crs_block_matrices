@@ -1,0 +1,11 @@
+.idea
+*.pyc
+*.data
+*.pkl
+*.ipynb_checkpoints
+**/build/*
+data_dir
+*.mm
+*.csv
+*.out
+*.bin
