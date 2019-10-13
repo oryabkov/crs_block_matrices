@@ -176,7 +176,7 @@ void brs_matrix<T,storage,Map>::read_from_file(const std::string &fn)
             row_ = row_/block_row_size_;
             col_ = col_/block_col_size_;
             int     ii1 = row_%block_row_size_,
-                    ii2 = col_&block_col_size_;
+                    ii2 = col_%block_col_size_;
             if ((ii1_ == 0)&&(ii2_ == 0)) {
                 col = col_; row = row_;
                 is_own = mat_str_->map_->check_glob_owned(row);
