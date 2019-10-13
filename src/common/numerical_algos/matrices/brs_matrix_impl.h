@@ -168,14 +168,16 @@ void brs_matrix<T,storage,Map>::read_from_file(const std::string &fn)
         int     col, row;
         bool    is_own;
         int     elem_ptr;
-        for (int ii1 = 0;ii1 < block_row_size_;++ii1)
-        for (int ii2 = 0;ii2 < block_col_size_;++ii2) {
+        for (int ii1_ = 0;ii1_ < block_row_size_;++ii1_)
+        for (int ii2_ = 0;ii2_ < block_col_size_;++ii2_) {
             int     col_, row_;
             T       val;
             if (!(f >> row_ >> col_ >> val)) throw std::runtime_error("brs_matrix::read_from_file: error while reading vals");
             row_ = row_/block_row_size_;
             col_ = col_/block_col_size_;
-            if ((ii1 == 0)&&(ii2 == 0)) {
+            int     ii1 = row_%block_row_size_,
+                    ii2 = col_&block_col_size_;
+            if ((ii1_ == 0)&&(ii2_ == 0)) {
                 col = col_; row = row_;
                 is_own = mat_str_->map_->check_glob_owned(row);
                 if (is_own) elem_ptr = mat_str_->find_elem_ptr(row, col);
