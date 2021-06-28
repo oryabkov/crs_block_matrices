@@ -24,6 +24,12 @@
 #define __STR_HELPER(x) #x
 #define __STR(x) __STR_HELPER(x)
 
+#if CUDART_VERSION >= 11000
+#define CUSPARSE_SAFE_CALL_PRINT_ERROR_STRING  ss << cusparseGetErrorString(status)
+#else
+#define CUSPARSE_SAFE_CALL_PRINT_ERROR_STRING 
+#endif
+
 #define CUSPARSE_SAFE_CALL(X)                                                                                                                                                                                                                          \
         do {                                                                                                                                                                                                                                           \
                 cusparseStatus_t status = (X);                                                                                                                                                                                                         \
@@ -31,7 +37,7 @@
                 if (status != CUSPARSE_STATUS_SUCCESS) {                                                                                                                                                                                               \
                         std::stringstream ss;                                                                                                                                                                                                          \
                         ss << std::string("CUSPARSE_SAFE_CALL " __FILE__ " " __STR(__LINE__) " : " #X " failed: returned status ") << status << ":\n";                                                                                                 \
-			ss << cusparseGetErrorString(status);																							       \
+                        CUSPARSE_SAFE_CALL_PRINT_ERROR_STRING;                                                                                                                                                                                         \
                         std::string str = ss.str();                                                                                                                                                                                                    \
                         throw std::runtime_error(str);                                                                                                                                                                                                 \
                 }                                                                                                                                                                                                                                      \
