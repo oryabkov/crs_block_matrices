@@ -1,4 +1,7 @@
 
+To build test run:
+make test_apply_single_gpu.bin
+
 To test run:
 ./test_apply_single_gpu.bin mat.dat vec.dat res.dat 1 none 0
 This will create file res.dat with result of matrix-vector multiplication
