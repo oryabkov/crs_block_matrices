@@ -238,6 +238,8 @@ void brs_matrix<T,storage,Map>::apply(const block_vector_type &x, block_vector_t
                                           mat_str_->loc_rows_n_, mat_str_->loc_cols_n_, mat_str_->loc_nonzeros_n_, 
                                           &one, descr, vals_.d, mat_str_->row_ptr_.d, mat_str_->col_ind_.d, 
                                           x.block_size(), x.ptr(), &zero, y.ptr()) );
+
+    CUSPARSE_SAFE_CALL( cusparseDestroyMatDescr(descr) );
 }
 
 template<class T>
